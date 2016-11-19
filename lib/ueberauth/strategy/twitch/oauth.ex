@@ -13,7 +13,7 @@ defmodule Ueberauth.Strategy.Twitch.OAuth do
   @defaults [
      strategy: __MODULE__,
      site: "https://api.twitch.tv",
-     authorize_url: "/api.twitch.tv/kraken/oauth2/authorize",
+     authorize_url: "https://api.twitch.tv/kraken/oauth2/authorize",
      token_url: "https://api.twitch.tv/kraken/oauth2/token"
    ]
 

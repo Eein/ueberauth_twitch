@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Twitch do
   Twitch Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :sub, default_scope: "email", hd: nil
+  use Ueberauth.Strategy, uid_field: :sub, default_scope: "user_read", hd: nil
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -69,7 +69,6 @@ defmodule Ueberauth.Strategy.Twitch do
   def credentials(conn) do
     token = conn.private.twitch_token
     scopes = (token.other_params["scope"] || "")
-              |> String.split(",")
 
     %Credentials{
       expires: !!token.expires_at,
@@ -89,8 +88,7 @@ defmodule Ueberauth.Strategy.Twitch do
     %Info{
       email: user["email"],
       name: user["name"],
-      image: user["logo"],
-      id: user["_id"]
+      image: user["logo"]
     }
   end
 
@@ -109,20 +107,21 @@ defmodule Ueberauth.Strategy.Twitch do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :twitch_token, token)
+    user = token.other_params["user"]
+    put_private(conn, :twitch_user, user)
+    # conn = put_private(conn, :twitch_token, token)
 
-    # userinfo_endpoint from https://accounts.twitch.com/.well-known/openid-configuration
-    #path = "https://api.twitch.tv/kraken/user"
-    path = "https://api.twitch.tv/kraken/oauth2/authorize"
-    resp = OAuth2.AccessToken.get(token, path)
+    # path = "https://api.twitch.tv/kraken/oauth2/authorize"
+    # resp = OAuth2.AccessToken.get(token, path)
 
-    case resp do
-      { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
-        set_errors!(conn, [error("token", "unauthorized")])
-      { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->
-        put_private(conn, :twitch_user, user)
-      { :error, %OAuth2.Error{reason: reason} } ->
-        set_errors!(conn, [error("OAuth2", reason)])
-    end
+    # case resp do
+    #   { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
+    #     set_errors!(conn, [error("token", "unauthorized")])
+    #   { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->
+    #     put_private(conn, :twitch_user, user)
+    #   { :error, %OAuth2.Error{reason: reason} } ->
+    #     set_errors!(conn, [error("OAuth2", reason)])
+    # end
   end
 
   defp with_optional(opts, key, conn) do
