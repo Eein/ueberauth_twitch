@@ -1,13 +1,13 @@
-defmodule UeberauthGoogle.Mixfile do
+defmodule UeberauthTwitch.Mixfile do
   use Mix.Project
 
-  @version "0.4.0"
-  @url "https://github.com/ueberauth/ueberauth_google"
+  @version "0.1.0"
+  @url "https://github.com/eein/ueberauth_twitch"
 
   def project do
-    [app: :ueberauth_google,
+    [app: :ueberauth_twitch,
      version: @version,
-     name: "Ueberauth Google Strategy",
+     name: "Ueberauth Twitch Strategy",
      package: package,
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
@@ -35,12 +35,12 @@ defmodule UeberauthGoogle.Mixfile do
   end
 
   defp description do
-    "An Uberauth strategy for Google authentication."
+    "An Uberauth strategy for Twitch authentication."
   end
 
   defp package do
     [files: ["lib", "mix.exs", "README.md", "LICENSE"],
-     maintainers: ["Sean Callan"],
+     maintainers: ["William Volin"],
      licenses: ["MIT"],
      links: %{"GitHub": @url}]
   end

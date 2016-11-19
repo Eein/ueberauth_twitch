@@ -1,16 +1,16 @@
-# Überauth Google
+# Überauth Twitch
 
-> Google OAuth2 strategy for Überauth.
+> Twitch OAuth2 strategy for Überauth.
 
 ## Installation
 
-1. Setup your application at [Google Developer Console](https://console.developers.google.com/home).
+1. UPDATE: Setup your application at [Twitch Developer Console](https://console.developers.twitch.com/home).
 
-1. Add `:ueberauth_google` to your list of dependencies in `mix.exs`:
+1. Add `:ueberauth_twitch` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:ueberauth_google, "~> 0.4"}]
+      [{:ueberauth_twitch, "~> 0.4"}]
     end
     ```
 
@@ -18,25 +18,25 @@
 
     ```elixir
     def application do
-      [applications: [:ueberauth_google]]
+      [applications: [:ueberauth_twitch]]
     end
     ```
 
-1. Add Google to your Überauth configuration:
+1. Add Twitch to your Überauth configuration:
 
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        google: {Ueberauth.Strategy.Google, []}
+        twitch: {Ueberauth.Strategy.Twitch, []}
       ]
     ```
 
 1.  Update your provider configuration:
 
     ```elixir
-    config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-      client_id: System.get_env("GOOGLE_CLIENT_ID"),
-      client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+    config :ueberauth, Ueberauth.Strategy.Twitch.OAuth,
+      client_id: System.get_env("TWITCH_CLIENT_ID"),
+      client_secret: System.get_env("TWITCH_CLIENT_SECRET")
     ```
 
 1.  Include the Überauth plug in your controller:
@@ -68,27 +68,27 @@ For an example implementation see the [Überauth Example](https://github.com/ueb
 
 Depending on the configured url you can initial the request through:
 
-    /auth/google
+    /auth/twitch
 
 Or with options:
 
-    /auth/google?scope=email%20profile
+    /auth/twitch?scope=email%20profile
 
 By default the requested scope is "email". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, [default_scope: "emails profile plus.me"]}
+    twitch: {Ueberauth.Strategy.Twitch, [default_scope: "user_read"]}
   ]
 ```
 
-You can also pass options such as the `hd` parameter to limit sign-in to a particular Google Apps hosted domain, or `approval_prompt` and `access_type` options to request refresh_tokens and offline access.
+You can also pass options such as the `hd` parameter to limit sign-in to a particular Twitch Apps hosted domain, or `approval_prompt` and `access_type` options to request refresh_tokens and offline access.
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, [hd: "example.com", approval_prompt: "force", access_type: "offline"]}
+    twitch: {Ueberauth.Strategy.Twitch, [hd: "example.com", approval_prompt: "force", access_type: "offline"]}
   ]
 ```
 
@@ -96,4 +96,4 @@ To guard against client-side request modification, it's important to still check
 
 ## License
 
-Please see [LICENSE](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE) for licensing details.
+Please see [LICENSE](https://github.com/eein/ueberauth_twitch/blob/master/LICENSE) for licensing details.

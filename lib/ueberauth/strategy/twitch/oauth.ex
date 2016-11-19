@@ -1,31 +1,31 @@
-defmodule Ueberauth.Strategy.Google.OAuth do
+defmodule Ueberauth.Strategy.Twitch.OAuth do
   @moduledoc """
-  OAuth2 for Google.
+  OAuth2 for Twitch.
 
   Add `client_id` and `client_secret` to your configuration:
 
-  config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-    client_id: System.get_env("GOOGLE_APP_ID"),
-    client_secret: System.get_env("GOOGLE_APP_SECRET")
+  config :ueberauth, Ueberauth.Strategy.Twitch.OAuth,
+    client_id: System.get_env("TWITCH_APP_ID"),
+    client_secret: System.get_env("TWITCH_APP_SECRET")
   """
   use OAuth2.Strategy
 
   @defaults [
      strategy: __MODULE__,
-     site: "https://accounts.google.com",
-     authorize_url: "/o/oauth2/v2/auth",
-     token_url: "https://www.googleapis.com/oauth2/v4/token"
+     site: "https://api.twitch.tv",
+     authorize_url: "/api.twitch.tv/kraken/oauth2/authorize",
+     token_url: "https://api.twitch.tv/kraken/oauth2/token"
    ]
 
   @doc """
-  Construct a client for requests to Google.
+  Construct a client for requests to Twitch.
 
-  This will be setup automatically for you in `Ueberauth.Strategy.Google`.
+  This will be setup automatically for you in `Ueberauth.Strategy.Twitch`.
 
   These options are only useful for usage outside the normal callback phase of Ueberauth.
   """
   def client(opts \\ []) do
-    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)
+    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Twitch.OAuth)
 
     opts =
       @defaults

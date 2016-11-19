@@ -1,6 +1,6 @@
-defmodule Ueberauth.Strategy.Google do
+defmodule Ueberauth.Strategy.Twitch do
   @moduledoc """
-  Google Strategy for Überauth.
+  Twitch Strategy for Überauth.
   """
 
   use Ueberauth.Strategy, uid_field: :sub, default_scope: "email", hd: nil
@@ -10,7 +10,7 @@ defmodule Ueberauth.Strategy.Google do
   alias Ueberauth.Auth.Extra
 
   @doc """
-  Handles initial request for Google authentication.
+  Handles initial request for Twitch authentication.
   """
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
@@ -22,15 +22,15 @@ defmodule Ueberauth.Strategy.Google do
       |> with_optional(:access_type, conn)
       |> Keyword.put(:redirect_uri, callback_url(conn))
 
-    redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(opts))
+    redirect!(conn, Ueberauth.Strategy.Twitch.OAuth.authorize_url!(opts))
   end
 
   @doc """
-  Handles the callback from Google.
+  Handles the callback from Twitch.
   """
   def handle_callback!(%Plug.Conn{ params: %{ "code" => code } } = conn) do
     opts = [redirect_uri: callback_url(conn)]
-    token = Ueberauth.Strategy.Google.OAuth.get_token!([code: code], opts)
+    token = Ueberauth.Strategy.Twitch.OAuth.get_token!([code: code], opts)
 
     if token.access_token == nil do
       set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
@@ -47,8 +47,8 @@ defmodule Ueberauth.Strategy.Google do
   @doc false
   def handle_cleanup!(conn) do
     conn
-    |> put_private(:google_user, nil)
-    |> put_private(:google_token, nil)
+    |> put_private(:twitch_user, nil)
+    |> put_private(:twitch_token, nil)
   end
 
   @doc """
@@ -60,14 +60,14 @@ defmodule Ueberauth.Strategy.Google do
       |> option(:uid_field)
       |> to_string
 
-    conn.private.google_user[uid_field]
+    conn.private.twitch_user[uid_field]
   end
 
   @doc """
-  Includes the credentials from the google response.
+  Includes the credentials from the twitch response.
   """
   def credentials(conn) do
-    token = conn.private.google_token
+    token = conn.private.twitch_token
     scopes = (token.other_params["scope"] || "")
               |> String.split(",")
 
@@ -84,46 +84,42 @@ defmodule Ueberauth.Strategy.Google do
   Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
   """
   def info(conn) do
-    user = conn.private.google_user
+    user = conn.private.twitch_user
 
     %Info{
       email: user["email"],
-      first_name: user["given_name"],
-      image: user["picture"],
-      last_name: user["family_name"],
       name: user["name"],
-      urls: %{
-        profile: user["profile"],
-        website: user["hd"]
-      }
+      image: user["logo"],
+      id: user["_id"]
     }
   end
 
   @doc """
-  Stores the raw information (including the token) obtained from the google callback.
+  Stores the raw information (including the token) obtained from the twitch callback.
   """
   def extra(conn) do
     %Extra{
       raw_info: %{
-        token: conn.private.google_token,
-        user: conn.private.google_user
+        token: conn.private.twitch_token,
+        user: conn.private.twitch_user
       }
     }
   end
 
 
   defp fetch_user(conn, token) do
-    conn = put_private(conn, :google_token, token)
+    conn = put_private(conn, :twitch_token, token)
 
-    # userinfo_endpoint from https://accounts.google.com/.well-known/openid-configuration
-    path = "https://www.googleapis.com/oauth2/v3/userinfo"
+    # userinfo_endpoint from https://accounts.twitch.com/.well-known/openid-configuration
+    #path = "https://api.twitch.tv/kraken/user"
+    path = "https://api.twitch.tv/kraken/oauth2/authorize"
     resp = OAuth2.AccessToken.get(token, path)
 
     case resp do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
       { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->
-        put_private(conn, :google_user, user)
+        put_private(conn, :twitch_user, user)
       { :error, %OAuth2.Error{reason: reason} } ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
